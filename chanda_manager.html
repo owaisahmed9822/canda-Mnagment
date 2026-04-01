@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chanda Manager — Ramzan 1447</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --green-mid: #4ade80;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --slate: #1e293b;
+    --slate-mid: #475569;
+    --slate-light: #94a3b8;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--slate);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(180deg, #0d1f3c 0%, #1a3a6b 50%, #0f2a4a 100%);
+    padding: 0 0 16px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  /* Geometric star pattern overlay */
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(212,175,55,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(212,175,55,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 0%, rgba(212,175,55,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Top shimmer bar */
+  .header-gold-bar {
+    height: 3px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      #8b6508 10%,
+      #d4af37 30%,
+      #ffd700 50%,
+      #d4af37 70%,
+      #8b6508 90%,
+      transparent 100%);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  /* Mosque silhouette SVG row */
+  .header-mosque {
+    display: flex; justify-content: center; align-items: flex-end;
+    padding: 8px 0 0;
+    gap: 0;
+  }
+  .header-mosque svg { display: block; }
+
+  /* Bismillah */
+  .header-bismillah {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    text-align: center; direction: rtl;
+    color: #ffd700;
+    font-size: 18px;
+    padding: 4px 20px 2px;
+    text-shadow:
+      0 0 20px rgba(255,215,0,0.6),
+      0 0 40px rgba(255,215,0,0.3);
+    letter-spacing: 1px;
+  }
+
+  /* Thin gold divider */
+  .header-divider {
+    height: 1px; margin: 8px 24px;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent);
+  }
+
+  /* Main title row */
+  .header-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 20px 0;
+  }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #8b6508, #d4af37, #ffd700);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .header-title { color: #fff; flex: 1; }
+  .header-title h1 {
+    font-size: 20px; font-weight: 800; letter-spacing: -0.4px;
+    background: linear-gradient(135deg, #fff 40%, #ffd700 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-title p {
+    font-size: 12px; color: rgba(255,215,0,0.8);
+    margin-top: 3px; font-weight: 500;
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl;
+  }
+
+  /* Collector name */
+  .header-collector {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl; text-align: center;
+    font-size: 15px; font-weight: 500;
+    padding: 6px 20px 0;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.3px;
+  }
+  .header-collector span {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.4);
+  }
+
+  /* Stars row */
+  .header-stars {
+    display: flex; justify-content: center; align-items: center;
+    gap: 10px; padding: 6px 0 0;
+    color: rgba(212,175,55,0.5);
+    font-size: 10px; letter-spacing: 6px;
+  }
+
+  /* Search bar */
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(232,201,106,0.35);
+    border-radius: 10px;
+    padding: 10px 16px 10px 42px;
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+    transition: background 0.2s;
+  }
+  .search-wrap input::placeholder { color: rgba(255,255,255,0.45); }
+  .search-wrap input:focus { background: rgba(255,255,255,0.16); border-color: rgba(232,201,106,0.6); }
+  .search-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: rgba(232,201,106,0.7); font-size: 16px;
+  }
+
+  /* ── DASHBOARD ── */
+  .dashboard {
+    padding: 20px 16px 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .stat-card:active { transform: scale(0.97); }
+  .stat-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 10px;
+  }
+  .stat-card.total .stat-icon { background: var(--green-light); }
+  .stat-card.pending .stat-icon { background: var(--red-light); }
+  .stat-card.cash .stat-icon { background: var(--amber-light); }
+  .stat-card.online .stat-icon { background: var(--blue-light); }
+  .stat-label { font-size: 11px; color: var(--slate-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 22px; font-weight: 800; margin-top: 2px; }
+  .stat-card.total .stat-value { color: var(--green); }
+  .stat-card.pending .stat-value { color: var(--red); }
+  .stat-card.cash .stat-value { color: var(--amber); }
+  .stat-card.online .stat-value { color: var(--blue); }
+  .stat-sub { font-size: 11px; color: var(--slate-light); margin-top: 2px; }
+
+  /* ── TABS ── */
+  .tabs-wrap {
+    padding: 12px 16px;
+    overflow-x: auto;
+    display: flex; gap: 8px;
+    scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-size: 13px; font-weight: 500;
+    color: var(--slate-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .tab .count {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+    min-width: 20px; height: 18px;
+    padding: 0 6px;
+    font-size: 11px; font-weight: 700;
+    margin-left: 6px;
+  }
+  .tab.active .count { background: rgba(255,255,255,0.25); }
+
+  /* ── FILTERS ── */
+  .filters {
+    padding: 0 16px 12px;
+    display: flex; gap: 8px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-label { font-size: 12px; color: var(--slate-light); font-weight: 500; }
+  .filter-chip {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    font-size: 12px; color: var(--slate-mid);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .filter-chip.active { background: var(--slate); color: #fff; border-color: var(--slate); }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    padding: 4px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--slate-mid); }
+  .export-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    background: var(--white);
+    border: 1.5px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .export-btn:hover { background: var(--green); color: #fff; }
+
+  /* ── CARDS LIST ── */
+  .records-list {
+    padding: 0 16px 100px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .record-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    animation: slideIn 0.2s ease forwards;
+  }
+  .record-card:active { transform: scale(0.98); box-shadow: var(--shadow); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-row1 {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .card-name {
+    font-size: 14px; font-weight: 600; color: var(--slate);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .card-name .urdu {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl; text-align: right;
+    font-size: 13px;
+    display: block;
+  }
+  .card-source {
+    font-size: 10px; color: var(--slate-light);
+    display: block; margin-top: 1px;
+  }
+  .card-amount {
+    font-size: 20px; font-weight: 800;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .card-amount span { font-size: 12px; font-weight: 500; }
+
+  .card-row2 {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge-zakat { background: var(--green-light); color: var(--green); }
+  .badge-lillah { background: var(--purple-light); color: var(--purple); }
+  .badge-other { background: #f1f5f9; color: var(--slate-mid); }
+  .badge-cash { background: var(--amber-light); color: var(--amber); }
+  .badge-online { background: var(--blue-light); color: var(--blue); }
+  .badge-source-k { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-source-r { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--slate-light);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  /* ── UPLOAD AREA ── */
+  .upload-section {
+    margin: 16px 16px 0;
+    background: var(--white);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .upload-section:hover { border-color: var(--green); }
+  .upload-section.drag-over { border-color: var(--green); background: var(--green-light); }
+  .upload-section input { display: none; }
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-text { font-size: 14px; font-weight: 600; color: var(--slate); }
+  .upload-sub { font-size: 12px; color: var(--slate-light); margin-top: 4px; }
+  .upload-error { color: var(--red); font-size: 13px; font-weight: 500; margin-top: 8px; display: none; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.6);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-height: 85vh;
+    overflow-y: auto;
+    padding: 8px 0 40px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border); border-radius: 2px;
+    margin: 12px auto 20px;
+  }
+  .modal-header {
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .modal-name {
+    font-size: 18px; font-weight: 700; color: var(--slate);
+    line-height: 1.4;
+  }
+  .modal-name .urdu {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl; display: block;
+    font-size: 16px; color: var(--slate-mid);
+    margin-top: 4px;
+  }
+  .modal-body { padding: 0 20px; }
+
+  .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 20px;
+  }
+  .detail-box {
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+  }
+  .detail-box .val { font-size: 24px; font-weight: 800; }
+  .detail-box .lbl { font-size: 11px; font-weight: 500; margin-top: 2px; }
+  .detail-box.amount { background: var(--green-light); }
+  .detail-box.amount .val, .detail-box.amount .lbl { color: var(--green); }
+  .detail-box.cat { background: var(--purple-light); }
+  .detail-box.cat .val { font-size: 16px; }
+  .detail-box.cat .val, .detail-box.cat .lbl { color: var(--purple); }
+  .detail-box.mode { background: var(--blue-light); }
+  .detail-box.mode .val { font-size: 16px; }
+  .detail-box.mode .val, .detail-box.mode .lbl { color: var(--blue); }
+  .detail-box.source { background: #f8fafc; border: 1px solid var(--border); }
+  .detail-box.source .val { font-size: 16px; color: var(--slate); }
+  .detail-box.source .lbl { color: var(--slate-light); }
+
+  .modal-close {
+    display: block; width: calc(100% - 40px); margin: 0 20px;
+    padding: 14px;
+    background: var(--slate);
+    color: #fff;
+    border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    z-index: 150;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+    padding: 6px 4px;
+    cursor: pointer;
+    color: var(--slate-light);
+    font-size: 10px; font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--green); }
+  .nav-item .nav-icon { font-size: 22px; }
+
+  /* ── UPLOAD PAGE ── */
+  #page-upload { padding: 16px; }
+  .upload-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .upload-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .upload-card p { font-size: 12px; color: var(--slate-light); margin-bottom: 16px; }
+  .upload-drop-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .upload-drop-area:hover, .upload-drop-area.drag-over {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+  .upload-drop-area input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-drop-area .icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-drop-area .text { font-size: 13px; font-weight: 600; color: var(--slate); }
+  .upload-drop-area .subtext { font-size: 11px; color: var(--slate-light); margin-top: 4px; }
+  .file-loaded {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 12px; padding: 10px 14px;
+    background: var(--green-light);
+    border-radius: 8px;
+  }
+  .file-loaded .name { font-size: 13px; font-weight: 600; color: var(--green); flex: 1; }
+  .file-loaded .rows { font-size: 11px; color: var(--green); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 4px; background: var(--border); border-radius: 2px;
+    margin: 8px 0; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--green);
+    border-radius: 2px; transition: width 0.3s;
+  }
+
+  /* Responsive for desktop */
+  @media (min-width: 640px) {
+    .dashboard { grid-template-columns: repeat(4, 1fr); padding: 20px 24px 8px; }
+    .tabs-wrap { padding: 12px 24px; }
+    .filters { padding: 0 24px 12px; }
+    .section-header { padding: 4px 24px 8px; }
+    .records-list { padding: 0 24px 100px; display: grid; grid-template-columns: repeat(2, 1fr); }
+    header { padding: 20px 24px 24px; }
+    .search-wrap { max-width: 400px; }
+    .header-top { justify-content: space-between; }
+    .header-top .search-wrap { flex: 1; max-width: none; }
+  }
+  @media (min-width: 1024px) {
+    .records-list { grid-template-columns: repeat(3, 1fr); padding: 0 24px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-gold-bar"></div>
+
+  <!-- Mosque silhouette SVG -->
+  <div class="header-mosque">
+    <svg width="100%" height="52" viewBox="0 0 400 52" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stars in sky -->
+      <circle cx="30" cy="10" r="1.2" fill="rgba(255,215,0,0.6)"/>
+      <circle cx="70" cy="6" r="0.8" fill="rgba(255,215,0,0.4)"/>
+      <circle cx="110" cy="12" r="1" fill="rgba(255,215,0,0.5)"/>
+      <circle cx="160" cy="5" r="1.2" fill="rgba(255,215,0,0.6)"/>
+      <circle cx="240" cy="8" r="0.8" fill="rgba(255,215,0,0.4)"/>
+      <circle cx="290" cy="4" r="1" fill="rgba(255,215,0,0.5)"/>
+      <circle cx="330" cy="11" r="1.2" fill="rgba(255,215,0,0.6)"/>
+      <circle cx="370" cy="7" r="0.8" fill="rgba(255,215,0,0.4)"/>
+      <!-- Crescent moon -->
+      <path d="M195 3 Q205 8 195 16 Q210 12 205 5 Z" fill="rgba(255,215,0,0.75)"/>
+      <!-- Left minaret -->
+      <rect x="60" y="18" width="8" height="34" rx="1" fill="rgba(212,175,55,0.18)"/>
+      <path d="M56 18 Q64 10 72 18 Z" fill="rgba(212,175,55,0.25)"/>
+      <rect x="63" y="10" width="2" height="5" fill="rgba(212,175,55,0.3)"/>
+      <!-- Right minaret -->
+      <rect x="332" y="18" width="8" height="34" rx="1" fill="rgba(212,175,55,0.18)"/>
+      <path d="M328 18 Q336 10 344 18 Z" fill="rgba(212,175,55,0.25)"/>
+      <rect x="335" y="10" width="2" height="5" fill="rgba(212,175,55,0.3)"/>
+      <!-- Main dome -->
+      <path d="M140 52 L140 30 Q200 2 260 30 L260 52 Z" fill="rgba(212,175,55,0.14)"/>
+      <path d="M140 30 Q200 2 260 30" stroke="rgba(212,175,55,0.4)" stroke-width="1.5" fill="none"/>
+      <!-- Side domes -->
+      <path d="M100 52 L100 38 Q130 24 160 38 L160 52 Z" fill="rgba(212,175,55,0.1)"/>
+      <path d="M240 52 L240 38 Q270 24 300 38 L300 52 Z" fill="rgba(212,175,55,0.1)"/>
+      <!-- Base line -->
+      <line x1="0" y1="51.5" x2="400" y2="51.5" stroke="rgba(212,175,55,0.3)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="header-bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+  <div class="header-divider"></div>
+
+  <div class="header-top">
+    <div class="header-icon">🌙</div>
+    <div class="header-title">
+      <h1>Chanda Manager</h1>
+      <p>رمضان المبارک ۱۴۴۷ &nbsp;·&nbsp; 2026</p>
+    </div>
+  </div>
+
+  <div class="header-divider"></div>
+  <div class="header-collector">وصول کنندہ: <span>اویس احمد رنجنی</span></div>
+  <div class="header-stars">✦ ✦ ✦ ✦ ✦</div>
+
+  <div style="padding: 8px 20px 0;">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by name..." oninput="applyFilters()">
+    </div>
+  </div>
+</header>
+
+<!-- PAGES -->
+<div id="page-home">
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <div class="stat-card total">
+      <div class="stat-icon">💚</div>
+      <div class="stat-label">Total Collected</div>
+      <div class="stat-value" id="s-total">₹0</div>
+      <div class="stat-sub" id="s-total-count">0 donors</div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Zakat</div>
+      <div class="stat-value" id="s-zakat">₹0</div>
+      <div class="stat-sub" id="s-zakat-count">0 entries</div>
+    </div>
+    <div class="stat-card cash">
+      <div class="stat-icon">💵</div>
+      <div class="stat-label">Cash</div>
+      <div class="stat-value" id="s-cash">₹0</div>
+      <div class="stat-sub" id="s-cash-count">0 entries</div>
+    </div>
+    <div class="stat-card online">
+      <div class="stat-icon">📱</div>
+      <div class="stat-label">Online</div>
+      <div class="stat-value" id="s-online">₹0</div>
+      <div class="stat-sub" id="s-online-count">0 entries</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-wrap" id="tabsWrap">
+    <div class="tab active" onclick="setTab('all', this)">All Members <span class="count" id="tab-all">0</span></div>
+    <div class="tab" onclick="setTab('karad', this)">Karad Gaon <span class="count" id="tab-karad">0</span></div>
+    <div class="tab" onclick="setTab('ranjani', this)">Ranjani <span class="count" id="tab-ranjani">0</span></div>
+    <div class="tab" onclick="setTab('zakat', this)">Zakat <span class="count" id="tab-zakat">0</span></div>
+    <div class="tab" onclick="setTab('lillah', this)">Lillah <span class="count" id="tab-lillah">0</span></div>
+    <div class="tab" onclick="setTab('high', this)">High ₹1000+ <span class="count" id="tab-high">0</span></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <span class="filter-label">Mode:</span>
+    <div class="filter-chip active" onclick="setMode('all', this)">All</div>
+    <div class="filter-chip" onclick="setMode('cash', this)">💵 Cash</div>
+    <div class="filter-chip" onclick="setMode('online', this)">📱 Online</div>
+  </div>
+
+  <!-- Section Header -->
+  <div class="section-header">
+    <span class="section-title" id="sectionLabel">All Records</span>
+    <button class="export-btn" onclick="exportToExcel()">⬇️ Export Excel</button>
+  </div>
+
+  <!-- Records -->
+  <div class="records-list" id="recordsList"></div>
+</div>
+
+<div id="page-upload" style="display:none">
+  <div class="upload-card">
+    <h3>📂 Upload Karad Gaon File</h3>
+    <p>Upload the Excel file for Karad Gaon chanda records</p>
+    <div class="upload-drop-area" id="drop-karad">
+      <input type="file" accept=".xlsx,.xls" onchange="handleFileUpload(event, 'karad')">
+      <div class="icon">📋</div>
+      <div class="text">Tap to select file</div>
+      <div class="subtext">.xlsx or .xls format</div>
+    </div>
+    <div class="file-loaded" id="loaded-karad" style="display:none">
+      <span>✅</span>
+      <span class="name" id="loaded-karad-name">—</span>
+      <span class="rows" id="loaded-karad-rows"></span>
+    </div>
+  </div>
+
+  <div class="upload-card">
+    <h3>📂 Upload Ranjani File</h3>
+    <p>Upload the Excel file for Ranjani chanda records</p>
+    <div class="upload-drop-area" id="drop-ranjani">
+      <input type="file" accept=".xlsx,.xls" onchange="handleFileUpload(event, 'ranjani')">
+      <div class="icon">📋</div>
+      <div class="text">Tap to select file</div>
+      <div class="subtext">.xlsx or .xls format</div>
+    </div>
+    <div class="file-loaded" id="loaded-ranjani" style="display:none">
+      <span>✅</span>
+      <span class="name" id="loaded-ranjani-name">—</span>
+      <span class="rows" id="loaded-ranjani-rows"></span>
+    </div>
+  </div>
+
+  <div class="upload-card" style="background:#f8fafc; border: 1.5px solid var(--border);">
+    <h3 style="font-size:13px; color:var(--slate-mid);">📌 Expected Format</h3>
+    <p style="margin-bottom:0;">The Excel file should have columns: <strong>Serial No, Name, Amount, Category (Zakat/Lillah), Mode (Cash/Online)</strong>. The app auto-detects these from the 2nd row header.</p>
+  </div>
+
+  <div id="upload-error" style="display:none; margin-top:12px; padding:12px 16px; background:var(--red-light); border-radius:10px; color:var(--red); font-size:13px; font-weight:500;"></div>
+</div>
+
+<div id="page-stats" style="display:none; padding:16px 16px 100px;">
+  <div style="background:var(--white); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); border:1px solid var(--border); margin-bottom:12px;">
+    <h3 style="font-size:15px; font-weight:700; margin-bottom:16px;">📊 Summary by Source</h3>
+    <div id="statsContent"></div>
+  </div>
+  <div style="background:var(--white); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); border:1px solid var(--border);">
+    <h3 style="font-size:15px; font-weight:700; margin-bottom:16px;">🏆 Top Contributors</h3>
+    <div id="topContributors"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header" id="modalHeader"></div>
+    <div class="modal-body" id="modalBody"></div>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" id="nav-upload" onclick="showPage('upload')">
+    <span class="nav-icon">📂</span>
+    <span>Upload</span>
+  </div>
+  <div class="nav-item" id="nav-stats" onclick="showPage('stats')">
+    <span class="nav-icon">📊</span>
+    <span>Stats</span>
+  </div>
+</div>
+
+<script>
+// ── BUILT-IN DATA ──
+const builtinKarad = [
+  {no:1,name:"فہیم بھائی",amount:2000,cat:"زکوۃ",mode:"نقد"},
+  {no:2,name:"کریم بھائی",amount:1000,cat:"زکوۃ",mode:"اونلائن"},
+  {no:3,name:"افسر ماموں",amount:2000,cat:"زکوۃ",mode:"اونلائن"},
+  {no:4,name:"مجید موسی قریشی",amount:1000,cat:"زکوۃ",mode:"اونلائن"},
+  {no:5,name:"مرحومہ وسیمہ بی",amount:500,cat:"زکوۃ",mode:"اونلائن"},
+  {no:6,name:"خورشید بی شمشیر خان پٹھان",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:7,name:"مرحومہ کلثوم بی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:8,name:"سمیر صاحب",amount:700,cat:"للہ",mode:"اونلائن"},
+  {no:9,name:"زبیر بھائی",amount:500,cat:"للہ",mode:"اونلائن"},
+  {no:10,name:"ریحان الیاس صاحب پٹھان",amount:500,cat:"للہ",mode:"اونلائن"},
+  {no:11,name:"مجیب پٹھان صاحب",amount:1500,cat:"زکوۃ",mode:"نقد"},
+  {no:12,name:"مرحومہ شمس الدین بی",amount:200,cat:"للہ",mode:"نقد"},
+  {no:13,name:"صادق بھائی مستری",amount:200,cat:"للہ",mode:"نقد"},
+  {no:14,name:"شہباز بھائی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:15,name:"طیب صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:16,name:"جاوید سر",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:17,name:"اقبال خان صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:18,name:"مرحومہ پیاری بی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:19,name:"احمد صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:20,name:"حسین صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:21,name:"سلیم بھائی",amount:200,cat:"للہ",mode:"نقد"},
+  {no:22,name:"دولت بھائی",amount:100,cat:"للہ",mode:"نقد"},
+  {no:23,name:"حافظ بلال صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:24,name:"سراج صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:25,name:"کریم بھائی دکاندار",amount:200,cat:"للہ",mode:"نقد"},
+  {no:26,name:"منا بھائی",amount:200,cat:"للہ",mode:"نقد"},
+  {no:27,name:"انیس صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:28,name:"یوسف صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:29,name:"سلمان صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:30,name:"بختیار بھائی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:31,name:"حمید صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:32,name:"حاجی پیرصاحب",amount:100,cat:"للہ",mode:"نقد"},
+];
+
+const builtinRanjani = [
+  {no:1,name:"ام محمد معرفت مفتی جاوید صاحب",amount:5000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:2,name:"ام فیضان معرفت مولانا عبد السبحان صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:3,name:"مرحوم پٹھان ابراہیم صاحب معرفت صفیہ باجی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:4,name:"عمر قریشی صاحب ساتونہ معرفت رضوانہ باجی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:5,name:"مرحوم عارف خان صاحب چکھلی معرفت مفتی جاوید صاحب",amount:1000,cat:"للہ",mode:"آنلائن"},
+  {no:6,name:"حاجی شیخ شاکر شیخ ابراہیم صاحب بیڑ",amount:2000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:7,name:"مرحوم غفار صاحب قریشی معرفت رضوانہ باجی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:8,name:"محمد قریشی صاحب معرفت رضوانہ باجی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:9,name:"جناب فہد قریشی صاحب معرفت رضوانہ باجی",amount:200,cat:"للہ",mode:"نقد"},
+  {no:10,name:"محمد رفیق بھائی باغبان مسجد",amount:500,cat:"للہ",mode:"نقد"},
+  {no:11,name:"نصیر بشیر صاحب قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:12,name:"ذاکر بھائی",amount:1000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:13,name:"عزیز امیر چودھری",amount:200,cat:"زکوۃ",mode:"نقد"},
+  {no:14,name:"مصطفیٰ بھائی",amount:1000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:15,name:"سید مجید سید وھاب صاحب",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:16,name:"حاجی نعیم صاحب میڈیکل والے",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:17,name:"مصلیان باغبان مسجد",amount:1800,cat:"۔",mode:"نقد"},
+  {no:18,name:"سید عبد القدیر حاجی شبیر باٖغبان",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:19,name:"عبد الواحد منیر تنبولی",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:20,name:"عرفان محی الدین",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:21,name:"مسعود بھائی قریشی",amount:2500,cat:"زکوۃ",mode:"آنلائن"},
+  {no:22,name:"راز محمد قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:23,name:"حاجی عبد الرشید صاحب باغبان",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:24,name:"نذیر بھائی قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:25,name:"رفیق اسمعیل باغبان",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:26,name:"ظہیر اسمعیل باغبان ہوٹل",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:27,name:"یونس باغبان معرفت رفیق بھائی باغبان",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:28,name:"مرحوم ساجد باغبان",amount:500,cat:"للہ",mode:"نقد"},
+  {no:29,name:"سید ایوب سبزی والے",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:30,name:"جاوید پٹھان مرحوم",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:31,name:"شفیق باغبان AKR",amount:1000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:32,name:"حاجی عبد الخالق قریشی",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:33,name:"سید عظمت صاحب ٹیلر",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:34,name:"محسن باغبان ولد رشید باغبان",amount:500,cat:"زکوۃ",mode:"آنلائن"},
+  {no:35,name:"مرحومہ بسم اللہ بی رضوان مسجد",amount:200,cat:"للہ",mode:"نقد"},
+  {no:36,name:"مرحومہ رشید بی",amount:200,cat:"للہ",mode:"نقد"},
+  {no:37,name:"سید صدیق صاحب",amount:500,cat:"للہ",mode:"نقد"},
+  {no:38,name:"مرحوم شبیر صاحب قریشی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:39,name:"مرحومہ نجمہ بی رحیم الدین شبانہ بی مرحومہ",amount:500,cat:"للہ",mode:"نقد"},
+  {no:40,name:"سید علی سید منیر صاحب",amount:200,cat:"للہ",mode:"نقد"},
+  {no:41,name:"کوثرشیخ صاحب",amount:500,cat:"للہ",mode:"نقد"},
+  {no:42,name:"اختر شیخ",amount:500,cat:"للہ",mode:"نقد"},
+  {no:43,name:"مرحوم عثمان معرفت عثمان بھائی",amount:1000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:44,name:"نثار بھائی کرانہ والے ولد شفیع صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:45,name:"سید وہاب سید نبی باغبان",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:46,name:"شیخ موسیٰ شیخ حنیف باغبان",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:47,name:"شیخ ایوب صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:48,name:"ریاض مناف قریشی، قریشی مسجد",amount:5000,cat:"زکوۃ",mode:"آنلائن"},
+  {no:49,name:"فاروق بھائی قریشی معرفت صادق بھائی",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:50,name:"نصیر سید بھائی قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:51,name:"سہیل قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:52,name:"قادر بھائی قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:53,name:"ابو حاجی صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:54,name:"مرحوم پتھرو بھائی قریشی",amount:500,cat:"للہ",mode:"نقد"},
+  {no:55,name:"فرحان بھائی قریشی",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:56,name:"شیخ چاند بھائی مرحوم (شیخ احمد)",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:57,name:"ببو قریشی",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:58,name:"اویس قریشی (صلاح الدین)",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:59,name:"مصلیان قریشی مسجد",amount:1260,cat:"۔",mode:"نقد"},
+  {no:60,name:"مصلیان وزان مسجد",amount:4084,cat:"۔",mode:"نقد"},
+  {no:61,name:"مصلیان نورنی مسجد معرفت حافظ نصرت صاحب",amount:4000,cat:"۔",mode:"نقد"},
+  {no:62,name:"بسم اللہ خان صاحب مدنی (کالی) مسجد",amount:1000,cat:"زکوۃ",mode:"نقد"},
+  {no:63,name:"مصلیان مدنی مسجد معرفت حافظ ناظر علی صاحب",amount:6500,cat:"۔",mode:"نقد"},
+  {no:64,name:"مرحومہ ریحانی خان معرفت ڈاکٹر عقیب صاحب",amount:500,cat:"زکوۃ",mode:"نقد"},
+  {no:65,name:"مصلیان جامع مسجد معرفت قاری وسیم صاحب",amount:1860,cat:"زکوۃ",mode:"نقد"},
+  {no:66,name:"مصلیان مسجد الحنیف راؤت نگر معرفت مولانا ارمغان صاحب",amount:3000,cat:"۔",mode:"نقد"},
+  {no:67,name:"رحمن باغبان جالنہ معرفت مولانا ارمغان صاحب",amount:2000,cat:"۔",mode:"نقد"},
+];
+
+// ── STATE ──
+let karadData = builtinKarad.map(r => ({...r, source:'Karad Gaon'}));
+let ranjaniData = builtinRanjani.map(r => ({...r, source:'Ranjani'}));
+let allRecords = [];
+let currentTab = 'all';
+let currentMode = 'all';
+let currentPage = 'home';
+
+function isOnline(m) {
+  return m && (m.includes('آنلائن') || m.includes('اونلائن') || m.toLowerCase().includes('online'));
+}
+function isCash(m) {
+  return m && (m.includes('نقد') || m.toLowerCase().includes('cash'));
+}
+function isZakat(c) {
+  return c && c.includes('زکوۃ');
+}
+function isLillah(c) {
+  return c && c.includes('للہ');
+}
+
+function buildAllRecords() {
+  allRecords = [...karadData, ...ranjaniData];
+}
+
+function fmt(n) {
+  return '₹' + Number(n).toLocaleString('en-IN');
+}
+
+function updateDashboard() {
+  const total = allRecords.reduce((s,r) => s+r.amount, 0);
+  const zakat = allRecords.filter(r => isZakat(r.cat)).reduce((s,r) => s+r.amount, 0);
+  const zakatCount = allRecords.filter(r => isZakat(r.cat)).length;
+  const cash = allRecords.filter(r => isCash(r.mode)).reduce((s,r) => s+r.amount, 0);
+  const cashCount = allRecords.filter(r => isCash(r.mode)).length;
+  const online = allRecords.filter(r => isOnline(r.mode)).reduce((s,r) => s+r.amount, 0);
+  const onlineCount = allRecords.filter(r => isOnline(r.mode)).length;
+
+  document.getElementById('s-total').textContent = fmt(total);
+  document.getElementById('s-total-count').textContent = allRecords.length + ' donors';
+  document.getElementById('s-zakat').textContent = fmt(zakat);
+  document.getElementById('s-zakat-count').textContent = zakatCount + ' entries';
+  document.getElementById('s-cash').textContent = fmt(cash);
+  document.getElementById('s-cash-count').textContent = cashCount + ' entries';
+  document.getElementById('s-online').textContent = fmt(online);
+  document.getElementById('s-online-count').textContent = onlineCount + ' entries';
+
+  // Tab counts
+  document.getElementById('tab-all').textContent = allRecords.length;
+  document.getElementById('tab-karad').textContent = karadData.length;
+  document.getElementById('tab-ranjani').textContent = ranjaniData.length;
+  document.getElementById('tab-zakat').textContent = zakatCount;
+  document.getElementById('tab-lillah').textContent = allRecords.filter(r => isLillah(r.cat)).length;
+  document.getElementById('tab-high').textContent = allRecords.filter(r => r.amount >= 1000).length;
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let filtered = [...allRecords];
+
+  // Tab filter
+  if (currentTab === 'karad') filtered = karadData.slice();
+  else if (currentTab === 'ranjani') filtered = ranjaniData.slice();
+  else if (currentTab === 'zakat') filtered = filtered.filter(r => isZakat(r.cat));
+  else if (currentTab === 'lillah') filtered = filtered.filter(r => isLillah(r.cat));
+  else if (currentTab === 'high') filtered = filtered.filter(r => r.amount >= 1000);
+
+  // Mode filter
+  if (currentMode === 'cash') filtered = filtered.filter(r => isCash(r.mode));
+  else if (currentMode === 'online') filtered = filtered.filter(r => isOnline(r.mode));
+
+  // Search
+  if (q) filtered = filtered.filter(r => r.name.toLowerCase().includes(q) || r.name.includes(q));
+
+  renderList(filtered);
+
+  const labels = {all:'All Records', karad:'Karad Gaon', ranjani:'Ranjani', zakat:'Zakat Only', lillah:'Lillah Only', high:'High Contributors (₹1000+)'};
+  document.getElementById('sectionLabel').textContent = `${labels[currentTab] || 'All'} — ${filtered.length} records`;
+}
+
+function renderList(records) {
+  const el = document.getElementById('recordsList');
+  if (records.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>No records found</p></div>`;
+    return;
+  }
+
+  el.innerHTML = records.map((r, i) => {
+    const catBadge = isZakat(r.cat) ? `<span class="badge badge-zakat">🌙 Zakat</span>` :
+                     isLillah(r.cat) ? `<span class="badge badge-lillah">💚 Lillah</span>` :
+                     `<span class="badge badge-other">📦 ${r.cat || '—'}</span>`;
+    const modeBadge = isOnline(r.mode) ? `<span class="badge badge-online">📱 Online</span>` :
+                      isCash(r.mode) ? `<span class="badge badge-cash">💵 Cash</span>` :
+                      `<span class="badge badge-other">${r.mode || '—'}</span>`;
+    const srcBadge = r.source === 'Karad Gaon' ?
+      `<span class="badge badge-source-k">🏡 Karad</span>` :
+      `<span class="badge badge-source-r">🏘 Ranjani</span>`;
+
+    return `<div class="record-card" onclick="openModal(${i}, '${encodeURIComponent(JSON.stringify(r))}')">
+      <div class="card-row1">
+        <div class="card-name">
+          <span class="urdu">${r.name}</span>
+          <span class="card-source">#${r.no} · ${r.source}</span>
+        </div>
+        <div class="card-amount">${fmt(r.amount)}<span> /-</span></div>
+      </div>
+      <div class="card-row2">
+        ${catBadge}${modeBadge}${srcBadge}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let _modalRecord = null;
+function openModal(idx, encoded) {
+  const r = JSON.parse(decodeURIComponent(encoded));
+  _modalRecord = r;
+
+  document.getElementById('modalHeader').innerHTML = `
+    <div class="modal-name">
+      <span class="urdu">${r.name}</span>
+      <span style="font-size:12px; color:var(--slate-light); font-weight:400; font-family:'Outfit',sans-serif;">#${r.no} · ${r.source}</span>
+    </div>`;
+
+  const catClass = isZakat(r.cat) ? 'زکوۃ' : isLillah(r.cat) ? 'للہ' : r.cat;
+  const catLabel = isZakat(r.cat) ? '🌙 Zakat' : isLillah(r.cat) ? '💚 Lillah' : r.cat || '—';
+  const modeLabel = isOnline(r.mode) ? '📱 Online' : isCash(r.mode) ? '💵 Cash' : r.mode || '—';
+  const modeClass = isOnline(r.mode) ? 'mode' : 'cash';
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-box amount">
+        <div class="val">${fmt(r.amount)}</div>
+        <div class="lbl">Amount Donated</div>
+      </div>
+      <div class="detail-box ${isZakat(r.cat)?'cat':'source'}">
+        <div class="val">${catLabel}</div>
+        <div class="lbl">Category</div>
+      </div>
+      <div class="detail-box ${isOnline(r.mode)?'mode':'cash' }">
+        <div class="val">${modeLabel}</div>
+        <div class="lbl">Payment Mode</div>
+      </div>
+      <div class="detail-box source">
+        <div class="val">${r.source}</div>
+        <div class="lbl">Area</div>
+      </div>
+    </div>
+    <div style="background:#f8fafc; border-radius:10px; padding:14px; border:1px solid var(--border);">
+      <div style="font-size:12px; color:var(--slate-light); font-weight:500; margin-bottom:8px;">CONTRIBUTION DETAIL</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:13px; color:var(--slate-mid);">Amount Contributed</span>
+        <span style="font-size:16px; font-weight:700; color:var(--green);">${fmt(r.amount)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:13px; color:var(--slate-mid);">Category</span>
+        <span style="font-size:13px; font-weight:600;">${catLabel}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:13px; color:var(--slate-mid);">Payment Mode</span>
+        <span style="font-size:13px; font-weight:600;">${modeLabel}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:13px; color:var(--slate-mid);">Area / Source</span>
+        <span style="font-size:13px; font-weight:600;">${r.source}</span>
+      </div>
+    </div>`;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay') || e.target.classList.contains('modal-close')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function setMode(mode, el) {
+  currentMode = mode;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function showPage(page) {
+  currentPage = page;
+  document.getElementById('page-home').style.display = page === 'home' ? '' : 'none';
+  document.getElementById('page-upload').style.display = page === 'upload' ? '' : 'none';
+  document.getElementById('page-stats').style.display = page === 'stats' ? '' : 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'stats') renderStats();
+}
+
+function renderStats() {
+  const karadTotal = karadData.reduce((s,r)=>s+r.amount,0);
+  const ranjaniTotal = ranjaniData.reduce((s,r)=>s+r.amount,0);
+  const total = karadTotal + ranjaniTotal;
+  const karadCash = karadData.filter(r=>isCash(r.mode)).reduce((s,r)=>s+r.amount,0);
+  const karadOnline = karadData.filter(r=>isOnline(r.mode)).reduce((s,r)=>s+r.amount,0);
+  const ranjaniCash = ranjaniData.filter(r=>isCash(r.mode)).reduce((s,r)=>s+r.amount,0);
+  const ranjaniOnline = ranjaniData.filter(r=>isOnline(r.mode)).reduce((s,r)=>s+r.amount,0);
+
+  const pct = (v, t) => t ? Math.round(v/t*100) : 0;
+
+  document.getElementById('statsContent').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:13px; font-weight:600;">🏡 Karad Gaon</span>
+        <span style="font-size:13px; font-weight:700; color:var(--green);">${fmt(karadTotal)}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct(karadTotal,total)}%"></div></div>
+      <div style="display:flex; gap:12px; font-size:11px; color:var(--slate-light);">
+        <span>💵 Cash: ${fmt(karadCash)}</span>
+        <span>📱 Online: ${fmt(karadOnline)}</span>
+        <span>${karadData.length} donors</span>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:13px; font-weight:600;">🏘 Ranjani</span>
+        <span style="font-size:13px; font-weight:700; color:var(--blue);">${fmt(ranjaniTotal)}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct(ranjaniTotal,total)}%; background:var(--blue);"></div></div>
+      <div style="display:flex; gap:12px; font-size:11px; color:var(--slate-light);">
+        <span>💵 Cash: ${fmt(ranjaniCash)}</span>
+        <span>📱 Online: ${fmt(ranjaniOnline)}</span>
+        <span>${ranjaniData.length} donors</span>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:12px; border-top:1px solid var(--border);">
+      <div style="text-align:center; padding:12px; background:var(--green-light); border-radius:10px;">
+        <div style="font-size:18px; font-weight:800; color:var(--green);">${fmt(total)}</div>
+        <div style="font-size:11px; color:var(--green); margin-top:2px;">Grand Total</div>
+      </div>
+      <div style="text-align:center; padding:12px; background:#f8fafc; border-radius:10px; border:1px solid var(--border);">
+        <div style="font-size:18px; font-weight:800; color:var(--slate);">${allRecords.length}</div>
+        <div style="font-size:11px; color:var(--slate-light); margin-top:2px;">Total Donors</div>
+      </div>
+    </div>`;
+
+  // Top contributors
+  const top = [...allRecords].sort((a,b) => b.amount - a.amount).slice(0, 10);
+  document.getElementById('topContributors').innerHTML = top.map((r,i) => `
+    <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom: ${i<9?'1px solid var(--border)':'none'};">
+      <div style="width:28px; height:28px; background:${i<3?'var(--amber-light)':'#f8fafc'}; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:${i<3?'var(--amber)':'var(--slate-light)'}; flex-shrink:0;">
+        ${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}
+      </div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-family:'Noto Nastaliq Urdu', serif; direction:rtl; font-size:12px; color:var(--slate); text-align:right; line-height:1.3;">${r.name}</div>
+        <div style="font-size:10px; color:var(--slate-light);">${r.source}</div>
+      </div>
+      <div style="font-size:15px; font-weight:800; color:var(--green); flex-shrink:0;">${fmt(r.amount)}</div>
+    </div>`).join('');
+}
+
+// ── FILE UPLOAD ──
+function handleFileUpload(event, source) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const errEl = document.getElementById('upload-error');
+  errEl.style.display = 'none';
+
+  if (!file.name.match(/\.(xlsx|xls)$/i)) {
+    errEl.textContent = '❌ Wrong file format! Please upload an Excel file (.xlsx or .xls)';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+
+      // Find header row
+      let headerRow = -1;
+      for (let i = 0; i < Math.min(rows.length, 5); i++) {
+        if (rows[i] && rows[i].length >= 3 && rows[i][1]) { headerRow = i; break; }
+      }
+      if (headerRow < 0) { headerRow = 1; }
+
+      const records = [];
+      for (let i = headerRow + 1; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || !r[0] || !r[1] || !r[2]) continue;
+        if (typeof r[0] !== 'number') continue;
+        const amt = parseFloat(r[2]);
+        if (isNaN(amt)) continue;
+        records.push({
+          no: r[0],
+          name: String(r[1]).trim(),
+          amount: amt,
+          cat: r[3] ? String(r[3]).trim() : '—',
+          mode: r[4] ? String(r[4]).trim() : '—',
+          source: source === 'karad' ? 'Karad Gaon' : 'Ranjani'
+        });
+      }
+
+      if (records.length === 0) {
+        errEl.textContent = '⚠️ No valid records found in file. Check column format.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (source === 'karad') {
+        karadData = records;
+        document.getElementById('loaded-karad').style.display = 'flex';
+        document.getElementById('loaded-karad-name').textContent = file.name;
+        document.getElementById('loaded-karad-rows').textContent = records.length + ' records';
+      } else {
+        ranjaniData = records;
+        document.getElementById('loaded-ranjani').style.display = 'flex';
+        document.getElementById('loaded-ranjani-name').textContent = file.name;
+        document.getElementById('loaded-ranjani-rows').textContent = records.length + ' records';
+      }
+
+      buildAllRecords();
+      updateDashboard();
+      applyFilters();
+      alert(`✅ ${records.length} records loaded from ${file.name}`);
+
+    } catch(err) {
+      errEl.textContent = '❌ Could not read file: ' + err.message;
+      errEl.style.display = 'block';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── EXPORT ──
+function exportToExcel() {
+  let filtered = [...allRecords];
+  if (currentTab === 'karad') filtered = karadData.slice();
+  else if (currentTab === 'ranjani') filtered = ranjaniData.slice();
+  else if (currentTab === 'zakat') filtered = filtered.filter(r => isZakat(r.cat));
+  else if (currentTab === 'lillah') filtered = filtered.filter(r => isLillah(r.cat));
+  else if (currentTab === 'high') filtered = filtered.filter(r => r.amount >= 1000);
+  if (currentMode === 'cash') filtered = filtered.filter(r => isCash(r.mode));
+  else if (currentMode === 'online') filtered = filtered.filter(r => isOnline(r.mode));
+
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (q) filtered = filtered.filter(r => r.name.toLowerCase().includes(q) || r.name.includes(q));
+
+  const wsData = [
+    ['#', 'Name (اسم)', 'Amount (رقم)', 'Category (مد)', 'Payment Mode (موڈ)', 'Source (علاقہ)'],
+    ...filtered.map(r => [r.no, r.name, r.amount, r.cat, r.mode, r.source])
+  ];
+
+  const total = filtered.reduce((s,r)=>s+r.amount,0);
+  wsData.push([]);
+  wsData.push(['', 'TOTAL', total, '', '', '']);
+  wsData.push(['', 'Records Count', filtered.length, '', '', '']);
+  wsData.push(['', 'Export Date', new Date().toLocaleDateString('en-IN'), '', '', '']);
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{wch:5},{wch:40},{wch:12},{wch:10},{wch:12},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Chanda Records');
+  XLSX.writeFile(wb, `Chanda_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ── INIT ──
+buildAllRecords();
+updateDashboard();
+applyFilters();
+</script>
+</body>
+</html>
